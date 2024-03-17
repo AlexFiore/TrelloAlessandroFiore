@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trello Alessandro</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <div class="column" id="toDoColumn" data-column-id="toDoColumn"> <!-- Ajout d'un attribut data pour stocker l'ID de la colonne -->
+        <h2>À faire</h2>
+        <div class="button-container">
+            <button class="add-button" onclick="openPopup(this.parentNode.parentNode)">Nouveau devoir</button>
+        </div>
+    </div>
+
+    <div class="column" id="completedColumn" data-column-id="completedColumn"> <!-- Ajout d'un attribut data pour stocker l'ID de la colonne -->
+        <h2>Completée</h2>
+    </div>
+
+    <!-- Popup devoir -->
+    <div id="popup" class="popup">
+        <div class="popup-content">
+            <span class="close" onclick="closePopup()">&times;</span>
+            <h2 id="popupTitle">Nouveau devoir</h2> <!-- Ajout du titre -->
+            <input type="text" id="titre" placeholder="Titre">
+            <input type="text" id="description" placeholder="Description">
+            <input type="text" id="categorie" placeholder="Categorie">
+            <button id="addOrUpdateButton" onclick="addToDo()">Ajouter</button>
+        </div>
+    </div>
+
+
+    <button class="add-column-button" onclick="openColumnPopup()">+</button> <!-- Nouveau devoir btn -->
+
+
+    <!-- Popup colonne -->
+    <div id="columnPopup" class="popup">
+        <div class="popup-content">
+            <span class="close" onclick="closeColumnPopup()">&times;</span>
+            <h2>Nouvelle colonne</h2> <!-- Ajout du titre -->
+            <input type="text" id="columnTitle" placeholder="Titre de la colonne">
+            <button onclick="addColumn()">Ajouter colonne</button>
+        </div>
+    </div>
+
+    <script>
+        let currentColumn = null; // Variable pour stocker la colonne sélectionnée
+
+        function openPopup(column) {
+            currentColumn = column; // Mettre à jour la référence de la colonne sélectionnée
+            document.getElementById("popup").style.display = "block";
+
+            // Effacer les valeurs des champs
+            document.getElementById("titre").value = "";
+            document.getElementById("description").value = "";
+            document.getElementById("categorie").value = "";
+
+            // Réinitialiser le texte du bouton à "Ajouter"
+            document.getElementById("addOrUpdateButton").innerText = "Ajouter";
+
+            // Changer le titre du popup
+            document.getElementById("popupTitle").innerText = "Nouveau devoir";
+        }
+
+        function closePopup() {
+            document.getElementById("popup").style.display = "none";
+        }
+
+        function addToDo() {
+            let titre = document.getElementById("titre").value;
+            let description = document.getElementById("description").value;
+            let categorie = document.getElementById("categorie").value;
+            if (titre && description && categorie) {
+                let newItem = document.createElement("div");
+                newItem.className = "task";
+                newItem.innerHTML = "<h3>" + titre + "</h3><h4>" + description + "</h4><h5>" + categorie + "</h5><button class='delete-button' onclick='deleteTask(event, this.parentNode)'>Supprimer</button>";
+                newItem.onclick = function(event) {
+                    if (!event.target.matches("button")) { // MaJ
+                        openPopup();
+
+                        // Remplir les champs avec l'info de la task sélectionnée
+                        document.getElementById("titre").value = titre;
+                        document.getElementById("description").value = description;
+                        document.getElementById("categorie").value = categorie;
+
+                        // Bouton mis à jour
+                        document.getElementById("addOrUpdateButton").innerText = "Update";
+                    }
+                };
+                currentColumn.appendChild(newItem); // Ajouter élément à la colonne sélectionnée
+                closePopup();
+            } else {
+                alert("Merci de compléter tous les champs.");
+            }
+        }
+
+        function deleteTask(event, taskNode) {
+            event.stopPropagation();
+            taskNode.remove();
+        }
+
+        function openColumnPopup() {
+            document.getElementById("columnPopup").style.display = "block";
+        }
+
+        function closeColumnPopup() {
+            document.getElementById("columnPopup").style.display = "none";
+        }
+
+        function addColumn() {
+            let columnTitle = document.getElementById("columnTitle").value;
+            if (columnTitle) {
+                let newColumn = document.createElement("div");
+                newColumn.className = "column";
+                newColumn.id = columnTitle;
+                newColumn.setAttribute("data-column-id", columnTitle); // Ajout de l'attribut data-column-id
+                newColumn.innerHTML = "<h2>" + columnTitle + "</h2><div class='button-container'><button class='add-button' onclick='openPopup(this.parentNode.parentNode)'>Nouveau devoir</button></div>";
+                document.body.insertBefore(newColumn, document.getElementById("columnPopup"));
+                closeColumnPopup();
+            } else {
+                alert("Veuillez saisir un titre de colonne.");
+            }
+        }
+    </script>
+</body>
+
+</html>
